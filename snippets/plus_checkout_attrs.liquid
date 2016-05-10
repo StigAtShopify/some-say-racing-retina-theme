@@ -1,0 +1,102 @@
+{% if plus_checkout_attrs %}
+  // Part 1:
+  // code for defining various attribute inputs...
+  {% if settings.attr_1_enable %}
+   {% assign attr_1_step = 'contact_information' | json %}
+   {% assign attr_1_section = settings.attr_1_title | default: 'Customer notes' | handle %}
+   {% assign attr_1_sibling = '.section--contact-information' | json %}
+
+   {% assign attr_title = settings.attr_1_title | default: 'Customer notes' %}
+   {% assign attr_explanation = settings.attr_1_section_explanation | default: false %}
+   {% assign attr_label = settings.attr_1_label | default: 'Notes' %}
+   {% assign attr_attribute = settings.attr_1_attribute | default: 'Customer notes' %}
+   {% assign attr_required = settings.attr_1_required | default: false %}
+   {% assign attr_error_msg = settings.attr_1_error_msg | default: 'Error' | escape %}
+   {% capture attr_store %}checkout[attributes][{{ attr_attribute }}]{% endcapture %}
+
+   {% include 'plus_attr_text' with attr_section: attr_1_section %}
+  {% endif %}
+
+
+  <script>
+    (function() {
+      // Part 2:
+      // code for required field function...
+      // code for function inserting new attribute fields...
+      // code for form submission event listeners...
+      // code for page/step listeners...
+      
+      (function($) {
+
+        var requiredFieldCheck = function(form) {
+          var field = {
+            required: '.field--required',
+            input: '.field__input',
+            wrapper: '.field__input-wrapper',
+            error_message_selector: '.field__message--error',
+            error_message_classes: 'field__message field__message--error',
+            error_class : 'field--error'
+          };
+          var $required_fields = $(form).find('.section--custom-attribute').find(field.required);
+          var isValid = true;
+
+          $required_fields.each(function() {
+
+            var $field = $(this);
+            field.value = $field.find(field.input).val();
+            field.error_message = $field.data('error');
+
+            if (field.value === '') {
+              isValid = false;
+
+              if (!$field.hasClass(field.error_class)) {
+                $field.addClass(field.error_class);
+              }
+              if ($field.find(field.error_message_selector).length < 1) {
+                $field.find(field.wrapper).after("<p class='"+ field.error_message_classes +"'>"+ field.error_message +"</p>");
+              }
+            } else {
+              if ($field.hasClass(field.error_class)) {
+                $field.removeClass(field.error_class);
+              }
+              if ($field.find(field.error_message_class).length > 0) {
+                $field.find(field.error_message_class).remove();
+              }
+            }
+          });
+
+          return isValid;
+        };
+
+        var insertField = function (section, sibling) {
+          var fieldSection = $('#attr-'+section).html();
+          $(sibling).after(fieldSection);
+        };
+
+        var checkout_form = '[data-step="contact_information"] form';
+
+        Checkout.$(document).on('submit', checkout_form, function() {
+          return requiredFieldCheck(this);
+        });
+
+        $(document).on('page:load page:change', function() {
+
+          {% comment %}
+            Since insertField() uses the after() method, adding fields needs
+            to be reverse order to match theme settings.
+          {% endcomment %}
+
+
+          {% if settings.attr_1_enable %}
+            if (Shopify.Checkout.step === {{ attr_1_step }}) {
+              Plus.func('{{ attr_1_section }}', 'main', function () {
+                insertField('{{ attr_1_section }}',{{ attr_1_sibling }});
+              });
+            }          
+          {% endif %}
+        });
+      })(jQuery, Plus.func);
+
+    })(jQuery, Plus.func);
+  </script>
+{% endif %}

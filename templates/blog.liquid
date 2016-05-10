@@ -1,0 +1,134 @@
+{% paginate blog.articles by 24 %}
+  <div class="section clearfix">
+    <div class="sixteen columns clearfix breadcrumb">
+      <div class="eight columns breadcrumb_text alpha" itemscope itemtype="http://schema.org/BreadcrumbList">
+        {% if settings.blog_breadcrumb %}
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="{{ shop.url }}" title="{{ shop.name | escape }}" itemprop="item"><span itemprop="name">{{ 'general.breadcrumbs.home' | t }}</span></a></span> 
+          &nbsp; / &nbsp;
+          <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="{{ blog.url }}" title="{{ blog.title | escape }}" itemprop="item"><span itemprop="name">{{ blog.title }}</span></a></span>       
+          {% if current_tags %}
+            {% for tag in current_tags %}
+              &nbsp; / &nbsp;
+              <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/blogs/{{ blog.handle }}/tagged/{{ tag | handleize }}" title="{{ tag | escape }}" itemprop="item"><span itemprop="name">{{ tag }}</span></a></span>
+            {% endfor %}
+          {% endif %}
+              
+          {% if paginate.pages != 0 %}      
+            &nbsp; / &nbsp; {{ 'general.breadcrumbs.page' | t: current_page: paginate.current_page, pages: paginate.pages }}
+          {% endif %}
+        {% endif %}
+      </div>
+
+      {% if settings.blog_tags %}
+        <div class="four offset-by-four columns section_select omega">
+          <select name="tag_filter" id="tag_filter" class="blog_filter">
+            <option {% unless current_tags %}selected="selected"{% endunless %} value="{{ blog.url }}">{{ 'blogs.general.view_all' | t }}</option>
+            {% for tag in blog.all_tags %}
+              <option {% if current_tags contains tag %}selected="selected"{% endif %} value="/blogs/{{ blog.handle }}/tagged/{{ tag | handleize }}">{{ tag }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="sixteen columns clearfix collection_nav">
+    <div class="twelve columns alpha">
+      <h1 class="collection_title">
+        {% if current_tags %}
+          <a href="/blogs/{{ blog.handle }}/tagged/{{ current_tags | handleize }}" title="{{ blog.title | escape }}">{{ current_tags }}</a>
+        {% else %}
+          <a href="{{ blog.url }}" title="{{ blog.title | escape }}">{{ blog.title }}</a>
+        {% endif %}
+      </h1>
+    </div>
+  </div>
+
+  <div class="{% if settings.sidebar_enabled %}twelve{% else %}sixteen{% endif %} columns">
+    {% for article in blog.articles %}
+      {% if settings.blog_articles_per_row == "1" %}
+        {% if article.image %}
+          <div class="{% if settings.sidebar_enabled %}seven{% else %}nine{% endif %} columns alpha article_image">
+            <a href="{{ article.url }}" title="{{ article.title | escape }}">
+              <img src="{{ article.image | img_url: '1024x1024' }}" alt="{{ article.title | escape }}" />
+            </a>
+          </div>
+          <div class="{% if settings.sidebar_enabled %}five{% else %}seven{% endif %} columns omega article">
+        {% else %} 
+          <div class="{% if settings.sidebar_enabled %}eight{% else %}sixteen{% endif %} columns alpha omega article">
+        {% endif %}
+      {% else %}
+        {% if settings.sidebar_enabled %}
+          <div class="{% if settings.blog_articles_per_row == "2" %}six columns {% cycle 'alpha', 'omega' %}{% elsif settings.blog_articles_per_row == "3" %}four columns {% cycle 'alpha', '', 'omega' %}{% else %}three columns {% cycle 'alpha', '', '', 'omega' %}{% endif %} article">
+        {% else %}
+          <div class="{% if settings.blog_articles_per_row == "2" %}eight columns {% cycle 'alpha', 'omega' %}{% elsif settings.blog_articles_per_row == "3" %}one-third column {% cycle 'alpha', '', 'omega' %}{% else %}four columns {% cycle 'alpha', '', '', 'omega' %}{% endif %} article">
+        {% endif %}
+
+        {% if article.image %}
+          <a href="{{ article.url }}" title="{{ article.title | escape }}">
+            <img src="{{ article.image | img_url: 'grande' }}" alt="{{ article.title | escape }}" />
+          </a>
+        {% endif %}
+      {% endif %}
+
+        {% if settings.blog_tags %}
+          <div class="blog_meta tags">
+            {% for tag in article.tags %}
+              <span><a href="{{ shop.url }}/blogs/{{ blog.handle }}/tagged/{{ tag | handleize }}" title="{{ blog.title }} {{ 'blogs.general.tagged' | t }} {{ tag | escape }}">{{ tag }}</a></span> 
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <h2 class="article_title"><a href="{{ article.url }}">{{ article.title }}</a></h2>
+
+        <p class="blog_meta">
+          {% if settings.blog_author %}
+            <span>{{ 'blogs.article.by_author' | t: author: article.author }}</span>
+          {% endif %}
+
+          {% if settings.blog_date %}
+            <span>{{ article.published_at | date: format: "month_day_year" }}</span>
+          {% endif %}
+          
+          {% if settings.blog_comment_count %}
+            {% if settings.disqus_enabled %}
+              <span>
+                <a href="{{ article.url }}#disqus_thread" data-disqus-identifier="{{ article.id }}" class="disqus-comment-count">{{ 'blogs.counts.comments_with_count' | t: count: 0 }}</a>
+              </span>
+            {% elsif article.comments_enabled? and article.comments_count > 0 %}
+              <span>
+                <a href="{{ article.url }}#comments">{{ 'blogs.counts.comments_with_count' | t: count: article.comments_count }}</a>
+              </span>
+            {% endif %}
+          {% endif %}
+        </p>
+
+        {% if article.excerpt != blank %}
+          <div class="excerpt">{{ article.excerpt }}</div>          
+        {% endif %}        
+        {% if settings.read_more_link %}
+          <p>
+            <a href="{{ article.url }}" title="{{ article.title | escape }}">{{ 'blogs.general.continue_reading_html' | t }}</a>
+          </p>
+        {% endif %}
+      </div>
+      
+      {% if settings.blog_articles_per_row == "2" %}
+        {% cycle "article_row": '', '<br class="clear" />' %}
+      {% elsif settings.blog_articles_per_row == "3" %}
+        {% cycle "article_row": '', '', '<br class="clear" />' %}
+      {% elsif settings.blog_articles_per_row == "4" %}
+        {% cycle "article_row": '', '', '', '<br class="clear" />' %}
+      {% else %}
+        <br class="clear" />
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% include "blog-sidebar" with blog.handle %}
+
+  <br class="clear" />
+  <div class="sixteen columns">
+    {% include 'pagination' %} 
+  </div>   
+{% endpaginate %}

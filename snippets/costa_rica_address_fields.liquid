@@ -1,0 +1,146 @@
+{% if costa_rica_address_fields %}
+ 
+  {% assign attr_1_step = 'contact_information' | json %}
+  {% assign attr_1_sibling = '.section--shipping-address' | json %}
+
+  <section id="attr-cr_section" style="display:none;">
+    <div class="section section--custom-attribute section--costa-rica-address-details">
+      
+      <div class="section__header">
+        <h2 class="section__title">Costa Rica Address Details</h2>
+      </div>
+      
+      <div class="section_content">
+        <div class="fieldset">
+          <div class="field--third field">
+            <div class="field__input-wrapper field__input-wrapper--select">
+              <label class="field__label" for="costa-rica-province">Provincias</label>
+              <select placeholder="Province" data-backup="cr_province" class="field__input field__input--select" 
+                      name="checkout[attributes][Costa Rica Provincias]" 
+                      id="costa-rica-province">
+                <option value="" disabled="">Provincias</option>
+                <option value="San José">San José</option>
+                <option value="Alajuela">Alajuela</option>
+                <option value="Cartago">Cartago</option>
+                <option value="Guanacaste">Guanacaste</option>
+                <option value="Heredia">Heredia</option>
+                <option value="Limón">Limón</option>
+                <option value="Puntarenas">Puntarenas</option>
+			  </select>
+            </div>
+          </div>
+          
+          <div class="field--third field">
+            <div class="field__input-wrapper field__input-wrapper--select">
+              <label class="field__label" for="costa-rica-county">Cantones</label>
+              <select placeholder="Cantones" data-backup="cr_county" class="field__input field__input--select" 
+                      name="checkout[attributes][Costa Rica Cantones]" 
+                      id="costa-rica-county">
+                <option value="" disabled="">Cantones</option>
+                <option value="San José">San José</option>
+                <option value="Escazú">Escazú</option>
+                <option value="Desamparados">Desamparados</option>
+                <option value="Puriscal">Puriscal</option>
+                <option value="Tarrazú">Tarrazú</option>
+                <option value="Aserrí">Aserrí</option>
+                <option value="Mora">Mora</option>
+			  </select>
+            </div>
+          </div>
+          
+          <div class="field--third field">
+            <div class="field__input-wrapper field__input-wrapper--select">
+              <label class="field__label" for="costa-rica-district">Districtos</label>
+              <select placeholder="Districtos" data-backup="cr_district" class="field__input field__input--select" 
+                      name="checkout[attributes][Costa Rica Districtos]" 
+                      id="costa-rica-district">
+                <option value="" disabled="">Districtos</option>
+                <option value="Carmen">Carmen</option>
+                <option value="Merced">Merced</option>
+                <option value="Hospital">Hospital</option>
+                <option value="Catedral">Catedral</option>
+                <option value="Zapote">Zapote</option>
+                <option value="San Francisco de Dos Ríos">San Francisco de Dos Ríos</option>
+                <option value="Uruca">Uruca</option>
+			  </select>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function() {
+      (function($) {
+        var requiredFieldCheck = function(form) {
+          var field = {
+            required: '.field--required',
+            input: '.field__input',
+            wrapper: '.field__input-wrapper',
+            error_message_selector: '.field__message--error',
+            error_message_classes: 'field__message field__message--error',
+            error_class : 'field--error'
+          };
+          var $required_fields = $(form).find('.section--custom-attribute').find(field.required);
+          var isValid = true;
+
+          $required_fields.each(function() {
+
+            var $field = $(this);
+            field.value = $field.find(field.input).val();
+            field.error_message = $field.data('error');
+
+            if (field.value === '') {
+              isValid = false;
+
+              if (!$field.hasClass(field.error_class)) {
+                $field.addClass(field.error_class);
+              }
+              if ($field.find(field.error_message_selector).length < 1) {
+                $field.find(field.wrapper).after("<p class='"+ field.error_message_classes +"'>"+ field.error_message +"</p>");
+              }
+            } else {
+              if ($field.hasClass(field.error_class)) {
+                $field.removeClass(field.error_class);
+              }
+              if ($field.find(field.error_message_class).length > 0) {
+                $field.find(field.error_message_class).remove();
+              }
+            }
+          });
+
+          return isValid;
+        };
+
+        var checkout_form = '[data-step="contact_information"] form';
+
+        Checkout.$(document).on('submit', checkout_form, function() {
+          return requiredFieldCheck(this);
+        });
+
+      })(jQuery, Plus.func);
+
+    })(jQuery, Plus.func);
+    
+    jQuery('#checkout_shipping_address_country').change(function() {
+      if (Shopify.Checkout.step === {{ attr_1_step }}) {
+        var selectedCountry = $("#checkout_shipping_address_country option:selected").text();
+        console.debug("country selected: ",selectedCountry);
+        if (selectedCountry == 'Costa Rica') {
+          Plus.func('attr-cr_section', 'main', function () {
+            var fieldSection = $('#attr-cr_section').html();
+            $fs = $(fieldSection);
+            $fs.attr('id','cr_section');
+            $({{ attr_1_sibling }}).after($fs);
+          });
+        } else {
+          $('#cr_section').remove();
+        }
+      }
+    });
+        
+  </script>
+      
+{% endif %}

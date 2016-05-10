@@ -1,0 +1,51 @@
+{% if settings.sidebar_enabled %}
+  <div class="sidebar four columns">
+    <div class="sidebar_content">
+      {% if settings.blog_search %}
+        <form class="blog_search" action="/search">
+          <input type="hidden" name="type" value="article" />
+          <span class="icon-search"></span>
+          <input type="text" name="q" class="search_box" placeholder="{{ 'general.search.title' | t }} {{ blog.title | escape }}..." autocapitalize="off" autocomplete="off" autocorrect="off" value="{{ search.terms }}" />
+        </form>
+      {% endif %}
+
+      {% if settings.blog_newsletter %}
+        <h4>{{ 'blogs.sidebar.subscribe' | t }}</h4>
+        <p>{{ 'blogs.sidebar.newsletter_description' | t }}</p>
+        {% include 'newsletter' %}
+      {% endif %}
+
+      {% if settings.display_recent_articles %}
+        <h4>{{ 'blogs.sidebar.recent_articles' | t }}</h4>      
+        <ul class="blog_list recent_articles">
+          {% for article in blogs[blog-sidebar].articles limit:10 %}
+            <li>
+              <a href="{{ article.url }}" title="{{ article.title | escape }}">{{ article.title }}</a>
+              {% if settings.blog_date %}
+                <div class="meta">
+                  <span class="label">{{ article.published_at | date: format: "month_day_year" }}</span>
+                </div>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    
+    {% if settings.blog_sidebar_tags and blogs[blog-sidebar].all_tags != blank %}
+      <h4>{{ 'blogs.sidebar.categories' | t }}</h4>
+      <ul class="blog_list ">
+        {% for tag in blogs[blog-sidebar].all_tags %}
+          <li>
+            <a href="{{ shop.url}}/blogs/{{ blogs[blog-sidebar].handle }}/tagged/{{ tag | handleize }}" title="{{ blogs[blog-sidebar].title }} {{ 'blogs.general.tagged' | t }} {{ tag | escape }}">{{ tag }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    
+    {% if settings.blog_content_page != blank %}
+      <h4>{{ pages[settings.blog_content_page].title }}</h4>
+      {{ pages[settings.blog_content_page].content }}
+    {% endif %}
+    </div>
+  </div>
+{% endif %}

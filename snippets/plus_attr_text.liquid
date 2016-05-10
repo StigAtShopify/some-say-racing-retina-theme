@@ -1,0 +1,23 @@
+<section id="attr-{{ attr_section }}" style="display:none;">
+  <div class="section section--custom-attribute section--{{ attr_section }}">
+    <div class="section__header">
+      <h2 class="section__title">{{ attr_title }}</h2>
+
+      {% if attr_explanation %}
+        <p class="section__text">{{ attr_explanation }}</p>
+      {% endif %}
+    </div>
+
+    <div class="section_content">
+      <div class="fieldset">
+        <div class="field {% if checkout.attributes[attr_attribute] %}field--show-floating-label{% endif %} {% if attr_required %}field--required" data-error="{{ attr_error_msg }}"{% else %}"{% endif %}>
+          <div class="field__input-wrapper">
+            <label class="field__label" for="{{ attr_attribute | handle }}">{{ attr_label }}</label>
+            <input type="text" placeholder="{{ attr_label }}" class="field__input" value="{{ checkout.attributes[attr_attribute] }}" name="{{ attr_store }}" id="{{ attr_attribute | handle }}">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
